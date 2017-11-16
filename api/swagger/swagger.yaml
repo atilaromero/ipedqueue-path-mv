@@ -27,7 +27,7 @@ paths:
               path:
                 type: string
               material:
-                type: number
+                type: string
       responses:
         "204":
           description: Success
@@ -43,6 +43,8 @@ paths:
                       type: string
                     value:
                       type: string
+                    hidden:
+                      type: boolean
         # responses may fall through to errors
         default:
           description: Error

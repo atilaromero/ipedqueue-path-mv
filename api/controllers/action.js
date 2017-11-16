@@ -12,18 +12,21 @@ module.exports = {
 async function post(req, res) {
   try {
     const body = req.swagger.params.body.value;
-    const parameters = [];
+    const parameters = {
+      material: {},
+      path: { hidden: true }
+    };
     let onError = false;
-    for (const prop in ['material', 'path']) {
-      if (!(prop in body)) {
+    for (const prop in parameters) {
+      if (!(prop in body) || (!body[prop])) {
         onError = true
-        parameters[prop] = {error: 'required'};
+        parameters[prop].error = 'required';
       } else {
-        parameters[prop] = {value: body[prop]};
+        parameters[prop].value = body[prop];
       }
     };
     if (onError) {
-      return res.status(400).json({parameters})
+      return res.status(400).json(parameters)
     }
     const url = evidenceURL + '/api/materials/?' + querystring.stringify({
       conditions: JSON.stringify({
@@ -38,23 +41,15 @@ async function post(req, res) {
     }
     const json = await fetched.json()
     if (json.length === 0) {
-      return res.status(400).json({
-        parameters: [
-          {name: 'material', error: 'not found'},
-          {name: 'path'}
-        ]
-      })
+      parameters.material.error = 'not found'
+      return res.status(400).json(parameters)
     }
     if (json.length > 1) {
-      return res.status(400).json({
-        parameters: [
-          {name: 'material', error: 'multiple materials found'},
-          {name: 'path'}
-        ]
-      })
+      parameters.material.error = 'multiple materials found'
+      return res.status(400).json(parameters)
     }
-    const path = json[0].path
-    await mv(body.path, path)
+    const destination = json[0].path
+    await mv(body.path, destination)
     res.status(204).end()
   } catch (err) {
     res.status(500).json({

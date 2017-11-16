@@ -11,6 +11,12 @@ var config = {
 SwaggerExpress.create(config, function(err, swaggerExpress) {
   if (err) { throw err; }
 
+  // enable SwaggerUI
+  app.use(swaggerExpress.runner.swaggerTools.swaggerUi())
+
+  // install middleware
+  swaggerExpress.register(app);
+
   // Custom error handler that returns JSON
   app.use(function(err, req, res, next) {
     console.log('ERROR', err)
@@ -26,14 +32,8 @@ SwaggerExpress.create(config, function(err, swaggerExpress) {
 
     // Return a JSON representation of #/definitions/ErrorResponse
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(err));
+    res.json(err);
   });
-
-  // enable SwaggerUI
-  app.use(swaggerExpress.runner.swaggerTools.swaggerUi())
-
-  // install middleware
-  swaggerExpress.register(app);
 
   var port = process.env.PORT || 10010;
 
