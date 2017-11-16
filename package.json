@@ -1,0 +1,27 @@
+{
+  "name": "mv",
+  "version": "0.0.1",
+  "private": true,
+  "description": "New Swagger API Project",
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "main": "app.js",
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "express": "^4.12.3",
+    "node-fetch": "^1.7.3",
+    "swagger-express-mw": "^0.1.0"
+  },
+  "devDependencies": {
+    "mock-spawn": "^0.2.6",
+    "nock": "^9.1.0",
+    "should": "^7.1.0",
+    "supertest": "^1.0.0"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "mock": "node mock.js",
+    "test": "swagger project test"
+  }
+}

@@ -1,0 +1,60 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: mv
+# during dev, should point to your local machine
+host: localhost:10010
+basePath: /
+#
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /action:
+    x-swagger-router-controller: action
+    post:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            properties:
+              path:
+                type: string
+              material:
+                type: number
+      responses:
+        "204":
+          description: Success
+        "400":
+          description: Parameter error
+          schema:
+            properties:
+              parameters:
+                type: object
+                additionalProperties:
+                  properties:
+                    error:
+                      type: string
+                    value:
+                      type: string
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /swagger:
+    x-swagger-pipe: swagger_raw
+# complex objects have schema definitions
+definitions:
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
