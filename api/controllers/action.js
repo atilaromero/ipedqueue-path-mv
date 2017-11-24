@@ -6,15 +6,27 @@ const spawn = require('child_process').spawn
 const evidenceURL = 'http://iped-queue'
 
 module.exports = {
-  post: (req, res) => post(req, res)
+  post: (req, res) => post(req, res),
+  get: (req, res) => get(req, res),
 };
+
+async function get(req, res) {
+  try {
+    const path = req.swagger.params.path.value || ''
+    const enabled = path.startsWith('/operacoes/celulares/')
+    res.json({enabled})
+  } catch (error) {
+    console.log({error})
+    res.status(500).json({message: error})
+  }
+}
 
 async function post(req, res) {
   try {
     const body = req.swagger.params.body.value;
     const parameters = {
-      material: {},
-      path: { hidden: true }
+      material: { type: 'number'},
+      path: { type: 'string', hidden: true }
     };
     let onError = false;
     for (const prop in parameters) {
@@ -26,7 +38,7 @@ async function post(req, res) {
       }
     };
     if (onError) {
-      return res.status(400).json(parameters)
+      return res.status(400).json({parameters})
     }
     const url = evidenceURL + '/api/materials/?' + querystring.stringify({
       conditions: JSON.stringify({
@@ -35,6 +47,7 @@ async function post(req, res) {
     })
     const fetched = await fetch(url)
     if (!fetched.ok) {
+      console.log({error: fetched})
       return res.status(500).json({
         message: JSON.stringify(fetched)
       })
@@ -42,19 +55,18 @@ async function post(req, res) {
     const json = await fetched.json()
     if (json.length === 0) {
       parameters.material.error = 'not found'
-      return res.status(400).json(parameters)
+      return res.status(400).json({parameters})
     }
     if (json.length > 1) {
       parameters.material.error = 'multiple materials found'
-      return res.status(400).json(parameters)
+      return res.status(400).json({parameters})
     }
     const destination = json[0].path
     await mv(body.path, destination)
     res.status(204).end()
-  } catch (err) {
-    res.status(500).json({
-      message: err
-    })
+  } catch (error) {
+    console.log({error})
+    res.status(500).json({message: error})
   }
 }
 

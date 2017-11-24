@@ -6,43 +6,62 @@ const nock = require('nock')
 const querystring = require('querystring')
 const assert = require('assert')
 
+nock('http://localhost:10010', {allowUnmocked: true})
+nock('http://iped-queue')
+  .persist()
+  .get('/api/materials/?' + querystring.stringify({
+    conditions: JSON.stringify({
+      material: 172192
+    })
+  }))
+  .reply(200, [{
+    material: 172192,
+    path: '/asdf/slw/woier/owier/aaa.dd'
+  }])
+  .get('/api/materials/?' + querystring.stringify({
+    conditions: JSON.stringify({
+      material: 172193
+    })
+  }))
+  .reply(200, [])
+  .get('/api/materials/?' + querystring.stringify({
+    conditions: JSON.stringify({
+      material: 172194
+    })
+  }))
+  .reply(200, [{
+    material: 172194,
+    path: '/asdf/slw/woier/owier/aaa1.dd'
+  },{
+    material: 172194,
+    path: '/asdf/slw/woier/owier/aaa2.dd'
+  }])
+nock('http://iped-queue')
+  .persist()
+  .get(/.*/)
+  .reply(400, {message: 'not found'})
+
 describe('controllers', function() {
   describe('action', function() {
+    describe('GET', function() {
+      it('should confirm allowed path', function(done) {
+        request(server)
+          .get('/action')
+          .query({path: '/operacoes/celulares/'})
+          .set('Accept', 'application/json')
+          .set('Content-Type', 'application/json')
+          .expect('Content-Type', /json/)
+          .expect(200)
+          .end(function(err, res) {
+            should.not.exist(err);
+            res.body.should.eql({
+              enabled: true
+            });
+            done();
+        });
+      });
+    });
     describe('POST', function() {
-      nock('http://localhost:10010', {allowUnmocked: true})
-      nock('http://iped-queue')
-        .persist()
-        .get('/api/materials/?' + querystring.stringify({
-          conditions: JSON.stringify({
-            material: 172192
-          })
-        }))
-        .reply(200, [{
-          material: 172192,
-          path: '/asdf/slw/woier/owier/aaa.dd'
-        }])
-        .get('/api/materials/?' + querystring.stringify({
-          conditions: JSON.stringify({
-            material: 172193
-          })
-        }))
-        .reply(200, [])
-        .get('/api/materials/?' + querystring.stringify({
-          conditions: JSON.stringify({
-            material: 172194
-          })
-        }))
-        .reply(200, [{
-          material: 172194,
-          path: '/asdf/slw/woier/owier/aaa1.dd'
-        },{
-          material: 172194,
-          path: '/asdf/slw/woier/owier/aaa2.dd'
-        }])
-      nock('http://iped-queue')
-        .persist()
-        .get(/.*/)
-        .reply(400, {message: 'not found'})
       it('should complain about missing parameter material', function(done) {
         request(server)
           .post('/action')
@@ -53,10 +72,10 @@ describe('controllers', function() {
           .end(function(err, res) {
             should.not.exist(err);
             res.body.should.eql({
-              parameters: [
-                {name: 'material', error: 'required'},
-                {name: 'path'},
-              ]
+              parameters: {
+                material : { type: 'number', error: 'required' },
+                path: { type: 'string', error: 'required', hidden: true},
+              }
             });
             done();
         });
@@ -71,10 +90,10 @@ describe('controllers', function() {
           .end(function(err, res) {
             should.not.exist(err);
             res.body.should.eql({
-              parameters: [
-                {name: 'material'},
-                {name: 'path', error: 'required'},
-              ]
+              parameters: {
+                material : { type: 'number', value: 172192 },
+                path: { type: 'string', error: 'required', hidden: true},
+              }
             });
             done();
         });
@@ -92,10 +111,10 @@ describe('controllers', function() {
           .end(function(err, res) {
             should.not.exist(err);
             res.body.should.eql({
-              parameters: [
-                {name: 'material', error: 'not found'},
-                {name: 'path'},
-              ]
+              parameters: {
+                material : { type: 'number', value: 172193, error: 'not found'},
+                path: { type: 'string', value: '/celpath/', hidden: true},
+              }
             });
             done();
         });
@@ -113,10 +132,10 @@ describe('controllers', function() {
           .end(function(err, res) {
             should.not.exist(err);
             res.body.should.eql({
-              parameters: [
-                {name: 'material', error: 'multiple materials found'},
-                {name: 'path'},
-              ]
+              parameters: {
+                material : { type: 'number', value: 172194, error: 'multiple materials found' },
+                path: { type: 'string', value: '/celpath/', hidden: true},
+              }
             });
             done();
         });

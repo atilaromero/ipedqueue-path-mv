@@ -17,6 +17,25 @@ produces:
 paths:
   /action:
     x-swagger-router-controller: action
+    get:
+      parameters:
+        - name: path
+          in: query
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            properties:
+              parameters:
+                properties:
+                  enabled:
+                    type: boolean
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
     post:
       parameters:
         - name: body
@@ -27,7 +46,7 @@ paths:
               path:
                 type: string
               material:
-                type: string
+                type: number
       responses:
         "204":
           description: Success
@@ -41,8 +60,9 @@ paths:
                   properties:
                     error:
                       type: string
-                    value:
+                    type:
                       type: string
+                    value: {}
                     hidden:
                       type: boolean
         # responses may fall through to errors
