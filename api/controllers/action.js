@@ -2,8 +2,10 @@
 const fetch = require('node-fetch');
 const querystring = require('querystring')
 const spawn = require('child_process').spawn
+const config = require('config');
 
-const evidenceURL = 'http://iped-queue'
+const evidenceURL = config.evidenceURL
+const basepath = config.basepath
 
 module.exports = {
   post: (req, res) => post(req, res),
@@ -13,11 +15,11 @@ module.exports = {
 async function get(req, res) {
   try {
     const path = req.swagger.params.path.value || ''
-    const enabled = path.startsWith('/operacoes/celulares/')
+    const enabled = path.startsWith(basepath)
     res.json({enabled})
   } catch (error) {
     console.log({error})
-    res.status(500).json({message: error})
+    res.status(500).json({message: JSON.stringify(error)})
   }
 }
 
@@ -66,7 +68,7 @@ async function post(req, res) {
     res.status(204).end()
   } catch (error) {
     console.log({error})
-    res.status(500).json({message: error})
+    res.status(500).json({message: JSON.stringify(error)})
   }
 }
 

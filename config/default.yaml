@@ -1,3 +1,7 @@
+port: 80
+basepath: /operacoes/celulares
+evidenceURL: 'http://iped-queue'
+
 # swagger configuration file
 
 # values in the swagger hash are system configuration for swagger-node
