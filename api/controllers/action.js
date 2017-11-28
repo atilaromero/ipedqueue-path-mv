@@ -12,10 +12,17 @@ module.exports = {
   get: (req, res) => get(req, res),
 };
 
+function enabledExtension(path) {
+  if (path.endsWith('.ufdr')) { return true; }
+  if (path.endsWith('.dd')) { return true; }
+  if (path.endsWith('.raw')) { return true; }
+  return false;
+}
+
 async function get(req, res) {
   try {
     const path = req.swagger.params.path.value || ''
-    const enabled = path.startsWith(basepath)
+    const enabled = path.startsWith(basepath) && enabledExtension(path)
     res.json({enabled})
   } catch (error) {
     console.log({error})
