@@ -3,6 +3,7 @@ const fetch = require('node-fetch');
 const querystring = require('querystring')
 const spawn = require('child_process').spawn
 const config = require('config');
+const path = require('path')
 
 const evidenceURL = config.evidenceURL
 const basepath = config.basepath
@@ -89,7 +90,8 @@ async function post(req, res) {
 }
 
 function mv (source, destination) {
-  mkPromise(spawn('mkdir', ['-p', destination]))
+  const dirDest = path.dirname(destination)
+  mkPromise(spawn('mkdir', ['-p', dirDest]))
   .then(() => {
     return mkPromise(spawn('mv', ['-n', source, destination]))
   })
