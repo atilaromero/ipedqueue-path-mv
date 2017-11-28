@@ -35,7 +35,7 @@ async function post(req, res) {
     const body = req.swagger.params.body.value;
     const parameters = {
       material: { type: 'number'},
-      path: { type: 'string', hidden: true }
+      path: { type: 'string' }
     };
     let onError = false;
     for (const prop in parameters) {
@@ -49,10 +49,14 @@ async function post(req, res) {
     if (onError) {
       return res.status(400).json({parameters})
     }
+    const conditions = {
+      material: body.material
+    }
+    if ('_id' in body) {
+      conditions._id = body._id
+    }
     const url = evidenceURL + '/api/materials/?' + querystring.stringify({
-      conditions: JSON.stringify({
-        material: body.material
-      })
+      conditions: JSON.stringify(conditions)
     })
     const fetched = await fetch(url)
     if (!fetched.ok) {
@@ -68,6 +72,11 @@ async function post(req, res) {
     }
     if (json.length > 1) {
       parameters.material.error = 'multiple materials found'
+      parameters._id = {
+        options: json,
+        type: 'options',
+        error: 'chose one'
+      }
       return res.status(400).json({parameters})
     }
     const destination = json[0].path
