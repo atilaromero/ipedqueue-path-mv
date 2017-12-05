@@ -76,7 +76,7 @@ async function post(req, res) {
       parameters._id = {
         options: json,
         type: 'options',
-        error: 'chose one'
+        error: 'choose one'
       }
       return res.status(400).json({parameters})
     }
