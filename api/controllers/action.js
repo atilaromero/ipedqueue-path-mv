@@ -82,7 +82,7 @@ async function post(req, res) {
     }
     const destination = json[0].path
     await mv(body.path, destination)
-    res.status(204).end()
+    res.json({destination});
   } catch (error) {
     console.log({error})
     res.status(500).json({message: JSON.stringify(error)})
@@ -90,11 +90,11 @@ async function post(req, res) {
 }
 
 function mv (source, destination) {
-  const dirDest = path.dirname(destination)
+  const dirDest = path.dirname(destination);
   mkPromise(spawn('mkdir', ['-p', dirDest]))
-  .then(() => {
-    return mkPromise(spawn('mv', ['-n', source, destination]))
-  })
+    .then(() => {
+      return mkPromise(spawn('mv', ['-n', source, destination]));
+    });
 }
 
 function mkPromise(child) {

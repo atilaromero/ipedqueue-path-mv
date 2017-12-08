@@ -48,8 +48,12 @@ paths:
               material:
                 type: number
       responses:
-        "204":
+        "200":
           description: Success
+          schema:
+            properties:
+              destination:
+                type: string
         "400":
           description: Parameter error
           schema:
