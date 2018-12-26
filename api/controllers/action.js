@@ -4,13 +4,17 @@ const querystring = require('querystring')
 const spawn = require('child_process').spawn
 const config = require('config');
 const path = require('path')
+const uuidv1 = require('uuid/v1')
 
 const evidenceURL = config.evidenceURL
 const basepath = config.basepath
 
+const running = {}
+
 module.exports = {
   post: (req, res) => post(req, res),
   get: (req, res) => get(req, res),
+  running,
 };
 
 function enabledExtension(path) {
@@ -93,7 +97,23 @@ function mv (source, destination) {
   const dirDest = path.dirname(destination);
   mkPromise(spawn('mkdir', ['-p', dirDest]))
     .then(() => {
-      return mkPromise(spawn('mv', ['-n', source, destination]));
+      myid = uuidv1()
+      running[myid].command = ['cp', '-n', source, destination]
+      running[myid].started = new Date()
+      running[myid].status = 'pending'
+      p = mkPromise(spawn('cp', ['-n', source, destination]))
+      .then(
+        (success)=>{
+          if (success) {
+            console.log({success})
+          }
+          running[myid].status = 'success'
+        },
+        (error)=>{
+          console.log({error})
+          running[myid].status = 'error'
+        }
+       )
     });
 }
 
