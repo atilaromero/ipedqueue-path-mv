@@ -88,6 +88,7 @@ async function post(req, res) {
     }
     const destination = json[0].path
     await mv(body.path, destination)
+    console.log({running})
     res.json({destination});
   } catch (error) {
     console.log({error})
@@ -98,12 +99,13 @@ async function post(req, res) {
 function mv (source, destination) {
   const dirDest = path.dirname(destination);
   const myid = source
-  mkPromise(spawn('mkdir', ['-p', dirDest]))
+  return mkPromise(spawn('mkdir', ['-p', dirDest]))
     .then(() => {
-      running[myid].command = ['cp', '-n', source, destination]
+      running[myid] = {}
+      running[myid].command = ['cp', source, destination]
       running[myid].started = new Date()
       running[myid].status = 'pending'
-      p = mkPromise(spawn('cp', ['-n', source, destination]))
+      const p = mkPromise(spawn('cp', [source, destination]))
       .then(
         (success)=>{
           if (success) {
@@ -120,21 +122,21 @@ function mv (source, destination) {
 }
 
 function mkPromise(child) {
-  const data = ''
   const p = new Promise((resolve, reject) => {
-    child.addListener('error', reject)
+    var data = ''
+    child.addListener('error', () => reject(data))
     child.addListener('close', code => {
       if (code !== 0) {
         reject(data)
       }
       resolve()
     })
-  })
-  child.stdout.on('data', chunk => {
-    data   += chunk
-  })
-  child.stderr.on('data', chunk => {
-    data += chunk
+    child.stdout.on('data', chunk => {
+      data   += chunk
+    })
+    child.stderr.on('data', chunk => {
+      data += chunk
+    })
   })
   return p
 }
