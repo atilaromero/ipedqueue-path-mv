@@ -97,7 +97,7 @@ function mv (source, destination) {
   const dirDest = path.dirname(destination);
   mkPromise(spawn('mkdir', ['-p', dirDest]))
     .then(() => {
-      myid = uuidv1()
+      myid = source
       running[myid].command = ['cp', '-n', source, destination]
       running[myid].started = new Date()
       running[myid].status = 'pending'
@@ -111,7 +111,7 @@ function mv (source, destination) {
         },
         (error)=>{
           console.log({error})
-          running[myid].status = 'error'
+          running[myid].status = 'error: ' + JSON.stringify(error)
         }
        )
     });

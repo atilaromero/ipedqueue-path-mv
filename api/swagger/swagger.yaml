@@ -15,6 +15,16 @@ consumes:
 produces:
   - application/json
 paths:
+  /running:
+    x-swagger-router-controller: running
+    get:
+      responses:
+        "200":
+          description: Success
+          schema:
+            properties:
+              running:
+                type: object
   /action:
     x-swagger-router-controller: action
     get:
