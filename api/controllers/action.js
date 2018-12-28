@@ -19,6 +19,8 @@ module.exports = {
 
 function enabledExtension(path) {
   if (path.endsWith('.ufdr')) { return true; }
+  if (path.endsWith('.ufdx')) { return true; }
+  if (path.endsWith('.ufd')) { return true; }
   if (path.endsWith('.dd')) { return true; }
   if (path.endsWith('.raw')) { return true; }
   return false;
@@ -95,9 +97,9 @@ async function post(req, res) {
 
 function mv (source, destination) {
   const dirDest = path.dirname(destination);
+  const myid = source
   mkPromise(spawn('mkdir', ['-p', dirDest]))
     .then(() => {
-      myid = source
       running[myid].command = ['cp', '-n', source, destination]
       running[myid].started = new Date()
       running[myid].status = 'pending'
