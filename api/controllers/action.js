@@ -102,10 +102,10 @@ function mv (source, destination) {
   return mkPromise(spawn('mkdir', ['-p', dirDest]))
     .then(() => {
       running[myid] = {}
-      running[myid].command = ['cp', source, destination]
+      running[myid].command = ['mv', source, destination]
       running[myid].started = new Date()
       running[myid].status = 'pending'
-      const p = mkPromise(spawn('cp', [source, destination]))
+      const p = mkPromise(spawn('mv', [source, destination]))
       .then(
         (success)=>{
           if (success) {
